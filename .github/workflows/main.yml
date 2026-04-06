@@ -1,4 +1,5 @@
 name: Build APK
+
 on:
   workflow_dispatch:
   push:
@@ -7,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v4
 
@@ -16,9 +18,16 @@ jobs:
         unzip *.zip
         ls -la SiksokAI/
 
-    - name: Fix build.gradle
+    - name: Fix build.gradle (namespace + SDK)
       run: |
         sed -i '/compileSdkVersion 33/a\    namespace "com.siksok.ai"' SiksokAI/app/build.gradle
+        sed -i 's/minSdkVersion [0-9]\+/minSdkVersion 16/g' SiksokAI/app/build.gradle
+        sed -i 's/targetSdkVersion [0-9]\+/targetSdkVersion 30/g' SiksokAI/app/build.gradle
+
+    - name: Enable AndroidX support
+      run: |
+        echo "android.useAndroidX=true" >> SiksokAI/gradle.properties
+        echo "android.enableJetifier=true" >> SiksokAI/gradle.properties
 
     - uses: actions/setup-java@v4
       with:
